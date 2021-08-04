@@ -1,0 +1,51 @@
+     1                                  
+     2                                  
+     3                                  section .kernel32
+     4                                  USE32
+     5                                  GLOBAL kernel32_code_size
+     6                                  GLOBAL kernel32_init
+     7                                  
+     8                                  EXTERN __SYS_TABLES_IDT
+     9                                  EXTERN __SYS_TABLES_GDT
+    10                                  
+    11                                  ;Global Variables
+    12                                  EXTERN buffer_Clear
+    13                                  EXTERN Keyboard_Buffer_Itself
+    14                                  EXTERN Load_Keyboard_table_Itself
+    15                                  ;Function references
+    16                                  EXTERN init_timer0
+    17                                  
+    18                                  GDT_LENGTH EQU (4); 4 descriptors of 32kb each one
+    19                                  
+    20                                  
+    21                                  kernel32_code_size EQU (kernel32_end-kernel32_init)
+    22                                  
+    23 00000000 1801                    _idtr   dw ((0x21*8)+(0x2*8))
+    24 00000002 [00000000]                      dd __SYS_TABLES_IDT
+    25                                  
+    26 00000006 1F00                    _gdtr   dw (4*8)-1;4 descriptors of 32kb each one
+    27 00000008 [00000000]                      dd __SYS_TABLES_GDT
+    28                                  
+    29                                  kernel32_init:
+    30                                  
+    31                                  
+    32 0000000C 0F011D[00000000]            lidt[_idtr] ;Load IDT
+    33 00000013 0F0115[06000000]            lgdt [_gdtr];Load GDT
+    34 0000001A E8(00000000)                call init_timer0; Init Timer Channel 0 after setting the IDT table
+    35                                  
+    36 0000001F 68[00000000]                push dword Keyboard_Buffer_Itself; Clear the keyboard buffer before start
+    37 00000024 E8(00000000)                call buffer_Clear;
+    38 00000029 68[00000000]                push dword Load_Keyboard_table_Itself; Clear the keyboard table buffer before start
+    39 0000002E E8(00000000)                call buffer_Clear;
+    40                                   
+    41 00000033 6687DB                      xchg bx,bx
+    42 00000036 FB                          sti; Set on interrupts
+    43                                  
+    44                                  wait_for_key:
+    45 00000037 90                              nop
+    46 00000038 EBFD                            jmp wait_for_key ; Waiting for interrupts endless cycle
+    47                                  
+    48                                  
+    49                                  
+    50                                  
+    51                                  kernel32_end:

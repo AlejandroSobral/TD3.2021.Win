@@ -1,0 +1,29 @@
+     1                                  GLOBAL Keyboard_Buffer_Itself
+     2                                  GLOBAL Load_Keyboard_table_Itself
+     3                                  GLOBAL TIMER_COUNTER
+     4                                  GLOBAL Keyboard_counter
+     5                                  GLOBAL Digit_Table_Average
+     6                                  GLOBAL Screen_pointer
+     7                                  GLOBAL Flag_Task_1
+     8                                  GLOBAL PF_error_code
+     9                                  GLOBAL PF_lin_addrs
+    10                                  
+    11                                  ;Mem Section
+    12                                  SECTION .TABLE_KEYBOARD
+    13 00000000 <res 000000BE>          Load_Keyboard_table_Itself resb 190 ;
+    13          ******************       warning: uninitialized space declared in non-BSS section `.TABLE_KEYBOARD': zeroing
+    14 000000BE <res 00000013>          Keyboard_Buffer_Itself resb 19   ;
+    14          ******************       warning: uninitialized space declared in non-BSS section `.TABLE_KEYBOARD': zeroing
+    15 000000D1 00                      Keyboard_counter db 0x00; Count how many keys were pressed
+    16                                   
+    17                                  SECTION .__DATA__
+    18 00000000 00                      TIMER_COUNTER db 0x00
+    19 00000001 <res 00000004>          Screen_pointer resb 4; 
+    19          ******************       warning: uninitialized space declared in non-BSS section `.__DATA__': zeroing
+    20 00000005 <res 00000013>          Digit_Table_Average resb 19 ;
+    20          ******************       warning: uninitialized space declared in non-BSS section `.__DATA__': zeroing
+    21 00000018 00                      Flag_Task_1 db 0x00
+    22 00000019 <res 00000004>          PF_error_code resd 1
+    22          ******************       warning: uninitialized space declared in non-BSS section `.__DATA__': zeroing
+    23 0000001D <res 00000004>          PF_lin_addrs resd 1
+    23          ******************       warning: uninitialized space declared in non-BSS section `.__DATA__': zeroing

@@ -1,0 +1,32 @@
+***********************************************************************************************************************************
+*                                    Planilla de avance de Trabajos Prácticos del Alumno                                          *
+*                                                                                                                                 *
+* Instrucciones: Colocar en el directorio raíz del repositorio local, para que sea de fácil acceso. Completar los datos (Usuario  * * SGE, Legajo)
+* Indicar el estado del ejercicio: Funciona: SI / NO                                                                              *
+* Agregar comentarios en caso que consideren oportuno, (por ejemplo si se compila con un makefile).                                *
+***********************************************************************************************************************************
+->Usuario SIGA: asobral
+->Legajo: 147886-2
+********************************************
+*                   TP 1                   *
+********************************************
+TP01.01: Funciona -> SI       Comentarios: Funciona acorde mi propia opinión.
+TP01.02: Funciona -> SI       Comentarios: Funciona acorde mi propia opinión.
+TP01.03: Funciona -> SI	      Comentarios: Funciona acorde mi propia opinión.	
+TP01.03: Funciona -> SI       Comentarios: Funciona acorde mi propia opinión.
+TP01.04: Funciona -> SI       Comentarios: Funciona acorde mi propia opinión.
+TP01.05: Funciona -> SI       Comentarios: Funciona acorde mi propia opinión.
+TP01.06: Funciona -> SI       Comentarios: Funciona acorde mi propia opinión.
+TP01.07: Funciona -> SI       Comentarios: Funciona acorde mi propia opinión.
+TP01.08: Funciona -> SI       Comentarios: Funciona acorde mi propia opinión.
+TP01.09: Funciona -> SI       Comentarios: En proceso
+...
+TP01.14: Funciona -> SI/NO       Comentarios:
+TP01.15: Funciona -> SI/NO       Comentarios:(Entrega Obligatoria)
+********************************************
+*              TP Integrador               *
+********************************************
+Servidor:    Funciona -> SI/NO       Comentarios:
+Cliente:     Funciona -> SI/NO       Comentarios:
+Driver:      Funciona -> SI/NO       Comentarios:
+

@@ -1,0 +1,7 @@
+     1                                  BITS 32
+     2                                  GLOBAL init32
+     3                                  
+     4                                  
+     5                                  SECTION .init32
+     6                                  init32:
+     7 00000000 F4                          hlt

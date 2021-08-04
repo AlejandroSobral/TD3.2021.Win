@@ -1,0 +1,102 @@
+     1                                  USE32
+     2                                  GLOBAL init32
+     3                                  GLOBAL start32_launcher
+     4                                  %include "inc/processor-flags.h" 
+     1                              <1> %define X86_CR0_PE      0x00000001 ;/* Protectede mode enable*/
+     2                              <1> %define X86_CR0_MP      0x00000002 ;/* Monitor coProcessor*/
+     3                              <1> %define X86_CR0_EM      0x00000004 ;/* Emulation*/
+     4                              <1> %define X86_CR0_TS      0x00000008 ;/* Task Switched*/
+     5                              <1> %define X86_CR0_ET      0x00000010 ;/* Extension Type*/
+     6                              <1> %define X86_CR0_NE      0x00000020 ;/* Numeric Error*/
+     7                              <1> %define X86_CR0_WP      0x00010000 ;/* Write Protect*/
+     8                              <1> %define X86_CR0_AM      0x00040000 ;/* Alignment Mask*/
+     9                              <1> %define X86_CR0_NW      0x20000000 ;/* Not Write-through*/
+    10                              <1> %define X86_CR0_CD      0x40000000 ;/* Cache Disable*/
+    11                              <1> %define X86_CR0_PG      0x80000000 ;/* PaGine*/
+     5                                  
+     6                                  SECTION .init32
+     7                                  
+     8                                  EXTERN  DS_SEL
+     9                                  EXTERN  __STACK_END_32
+    10                                  EXTERN  __STACK_SIZE_32
+    11                                  EXTERN  CS_SEL_32
+    12                                  EXTERN  kernel32_init
+    13                                  EXTERN  __KERNEL_32_LMA
+    14                                  EXTERN  __codigo_kernel32_size
+    15                                  EXTERN  __fast_memcpy
+    16                                  EXTERN  __fast_memcpy_rom
+    17                                  EXTERN  kernel32_code_size
+    18                                  EXTERN  __functions_size
+    19                                  EXTERN  __FUNCTIONS_LMA
+    20                                  EXTERN  __KERNEL_32_VMA
+    21                                  EXTERN  __FUNCTIONS_VMA
+    22                                  
+    23                                   
+    24                                  
+    25                                  
+    26                                  init32:
+    27                                  
+    28                                  
+    29                                  
+    30                                  start32_launcher:
+    31                                  
+    32                                  
+    33 00000000 6687DB                      xchg bx,bx
+    34                                      ;Selectors init
+    35 00000003 66B8[0000]                  mov ax, DS_SEL
+    36 00000007 8ED8                        mov ds, ax
+    37 00000009 8EC0                        mov es, ax
+    38 0000000B 8EE8                        mov gs, ax
+    39 0000000D 8EE0                        mov fs, ax
+    40                                  
+    41                                      ;Stack init
+    42 0000000F 8ED0                        mov ss,ax
+    43 00000011 BC[00000000]                mov esp,__STACK_END_32
+    44 00000016 31C0                        xor eax,eax
+    45                                  
+    46                                      ;limpio la pila
+    47 00000018 B9[00000000]                mov ecx,__STACK_SIZE_32   
+    48                                      .stack_init:
+    49 0000001D 50                              push eax
+    50 0000001E E2FD                            loop .stack_init
+    51 00000020 BC[00000000]                mov esp,__STACK_END_32
+    52                                  
+    53                                      ;Start copying from ROM -> RAM.
+    54                                  
+    55 00000025 6687DB                      xchg bx,bx
+    56                                   
+    57 00000028 55                          push ebp
+    58 00000029 89E5                        mov ebp,esp
+    59                                      ;enter
+    60 0000002B 68[00000000]                push __functions_size; 0x3c __functions_size
+    61 00000030 68[00000000]                push __FUNCTIONS_VMA
+    62 00000035 68[00000000]                push __FUNCTIONS_LMA ; 0xFFFF1000 __FUNCTIONS_LMA
+    63 0000003A E8(00000000)                call __fast_memcpy_rom
+    64 0000003F 6687DB                      xchg bx,bx
+    65 00000042 C9                          leave
+    66 00000043 83F801                      cmp eax,1
+    67 00000046 752D                        jne .halteo
+    68                                  
+    69                                  
+    70 00000048 6687DB                      xchg bx,bx
+    71                                      ;desempaqueto la rom
+    72 0000004B 55                          push ebp
+    73 0000004C 89E5                        mov ebp,esp
+    74 0000004E 68[00000000]                push __codigo_kernel32_size; 0x0000000000300000 __codigo_kernel32_size
+    75 00000053 68[00000000]                push __KERNEL_32_VMA;__KERNEL_32_VMA
+    76 00000058 68[00000000]                push __KERNEL_32_LMA;__KERNEL_32_LMA
+    77 0000005D E8(00000000)                call __fast_memcpy_rom
+    78 00000062 6687DB                      xchg bx,bx
+    79 00000065 C9                          leave
+    80 00000066 83F801                      cmp eax,1
+    81 00000069 750A                        jne .halteo
+    82                                  
+    83 0000006B 6687DB                      xchg bx,bx
+    84 0000006E EA[00000000][0000]          jmp CS_SEL_32:kernel32_init
+    85                                  
+    86                                      
+    87                                  
+    88                                  .halteo
+    88          ******************       warning: label alone on a line without a colon might be in error [-w+orphan-labels]
+    89 00000075 F4                          hlt
+    90 00000076 EBFD                        jmp .halteo

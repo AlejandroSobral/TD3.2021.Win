@@ -1,0 +1,152 @@
+     1                                  USE32
+     2                                  GLOBAL init32
+     3                                  GLOBAL start32_launcher
+     4                                  %include "inc/processor-flags.h" 
+     1                              <1> %define X86_CR0_PE      0x00000001 ;/* Protectede mode enable*/
+     2                              <1> %define X86_CR0_MP      0x00000002 ;/* Monitor coProcessor*/
+     3                              <1> %define X86_CR0_EM      0x00000004 ;/* Emulation*/
+     4                              <1> %define X86_CR0_TS      0x00000008 ;/* Task Switched*/
+     5                              <1> %define X86_CR0_ET      0x00000010 ;/* Extension Type*/
+     6                              <1> %define X86_CR0_NE      0x00000020 ;/* Numeric Error*/
+     7                              <1> %define X86_CR0_WP      0x00010000 ;/* Write Protect*/
+     8                              <1> %define X86_CR0_AM      0x00040000 ;/* Alignment Mask*/
+     9                              <1> %define X86_CR0_NW      0x20000000 ;/* Not Write-through*/
+    10                              <1> %define X86_CR0_CD      0x40000000 ;/* Cache Disable*/
+    11                              <1> %define X86_CR0_PG      0x80000000 ;/* PaGine*/
+     5                                  
+     6                                  SECTION .init32
+     7                                  
+     8                                  ;Load references
+     9                                  EXTERN  DS_SEL
+    10                                  EXTERN  __STACK_END_32
+    11                                  EXTERN  __STACK_SIZE_32
+    12                                  EXTERN  CS_SEL_32
+    13                                  EXTERN  kernel32_init
+    14                                  EXTERN  __KERNEL_32_LMA
+    15                                  EXTERN  __codigo_kernel32_size
+    16                                  EXTERN __ISR_AND_KEYBOARD_CODE_size; 
+    17                                  EXTERN __ISR_AND_KEYBOARD_VMA;
+    18                                  EXTERN __ISR_AND_KEYBOARD_LMA;_
+    19                                  EXTERN  __fast_memcpy
+    20                                  EXTERN  __fast_memcpy_rom
+    21                                  EXTERN  kernel32_code_size
+    22                                  EXTERN  __functions_size
+    23                                  EXTERN TASK_1_size
+    24                                  EXTERN __TASK_
+    25                                  EXTERN __TASK_1_VMA
+    26                                  EXTERN __TASK_1_LMA
+    27                                  EXTERN  __FUNCTIONS_LMA
+    28                                  EXTERN  __KERNEL_32_VMA
+    29                                  EXTERN  __FUNCTIONS_VMA
+    30                                  EXTERN __SYS_TABLES_GDT
+    31                                  EXTERN __SYS_TABLES_LMA
+    32                                  EXTERN  __sys_size
+    33                                  EXTERN Digit_Table_Average
+    34                                  EXTERN Screen_pointer
+    35                                  
+    36                                  ;JMP References
+    37                                  EXTERN init_pic
+    38                                  EXTERN init_IDT
+    39                                  EXTERN init_timer0
+    40                                  EXTERN _idtr
+    41                                  KeyBoard_IRQ equ 0x01
+    42                                  VIDEO_BUFFER_ADDR EQU 0x000B8000
+    43                                  
+    44                                   
+    45                                  
+    46                                  
+    47                                  init32:
+    48                                  start32_launcher:
+    49                                  
+    50                                      ;Selectors init
+    51 00000000 66B8[0000]                  mov ax, DS_SEL
+    52 00000004 8ED8                        mov ds, ax
+    53 00000006 8EC0                        mov es, ax
+    54 00000008 8EE8                        mov gs, ax
+    55 0000000A 8EE0                        mov fs, ax
+    56                                  
+    57                                      ;Stack init
+    58 0000000C 8ED0                        mov ss,ax
+    59 0000000E BC[00000000]                mov esp,__STACK_END_32
+    60 00000013 31C0                        xor eax,eax
+    61                                  
+    62                                      ;Clean Stack
+    63 00000015 B9[00000000]                mov ecx,__STACK_SIZE_32   
+    64                                      .stack_init:
+    65 0000001A 50                              push eax
+    66 0000001B E2FD                            loop .stack_init
+    67 0000001D BC[00000000]                mov esp,__STACK_END_32
+    68                                  
+    69                                      ;Start copying from ROM -> RAM.
+    70                                  
+    71                                      ;Copy Functions functions
+    72 00000022 55                          push ebp
+    73 00000023 89E5                        mov ebp,esp
+    74 00000025 68[00000000]                push __functions_size; 
+    75 0000002A 68[00000000]                push __FUNCTIONS_VMA
+    76 0000002F 68[00000000]                push __FUNCTIONS_LMA ; 
+    77 00000034 E8(00000000)                call __fast_memcpy_rom
+    78 00000039 C9                          leave
+    79 0000003A 83F801                      cmp eax,1
+    80 0000003D 0F8599000000                jne .halteo
+    81                                  
+    82                                      ;Copy Kernel
+    83 00000043 55                          push ebp
+    84 00000044 89E5                        mov ebp,esp
+    85 00000046 68[00000000]                push __codigo_kernel32_size; 
+    86 0000004B 68[00000000]                push __KERNEL_32_VMA;
+    87 00000050 68[00000000]                push __KERNEL_32_LMA;
+    88 00000055 E8(00000000)                call __fast_memcpy
+    89 0000005A C9                          leave
+    90 0000005B 83F801                      cmp eax,1
+    91 0000005E 757C                        jne .halteo
+    92                                  
+    93                                      ;Copy Task_01
+    94 00000060 55                          push ebp
+    95 00000061 89E5                        mov ebp,esp
+    96 00000063 68[00000000]                push TASK_1_size; 
+    97 00000068 68[00000000]                push __TASK_1_VMA;
+    98 0000006D 68[00000000]                push __TASK_1_LMA;
+    99 00000072 E8(00000000)                call __fast_memcpy
+   100 00000077 C9                          leave
+   101 00000078 83F801                      cmp eax,1
+   102 0000007B 755F                        jne .halteo
+   103                                  
+   104                                  
+   105                                      ;ISR & KEYBOARD Codes
+   106 0000007D 55                          push ebp
+   107 0000007E 89E5                        mov ebp,esp
+   108 00000080 68[00000000]                push __ISR_AND_KEYBOARD_CODE_size; 
+   109 00000085 68[00000000]                push __ISR_AND_KEYBOARD_VMA;
+   110 0000008A 68[00000000]                push __ISR_AND_KEYBOARD_LMA;_
+   111 0000008F E8(00000000)                call __fast_memcpy
+   112 00000094 C9                          leave
+   113 00000095 83F801                      cmp eax,1
+   114 00000098 7542                        jne .halteo
+   115                                      
+   116 0000009A 55                          push ebp
+   117 0000009B 89E5                        mov ebp,esp
+   118 0000009D 68[00000000]                push  __sys_size; 
+   119 000000A2 68[00000000]                push __SYS_TABLES_GDT;
+   120 000000A7 68[00000000]                push __SYS_TABLES_LMA ;
+   121 000000AC E8(00000000)                call __fast_memcpy
+   122 000000B1 C9                          leave
+   123 000000B2 83F801                      cmp eax,1
+   124 000000B5 7525                        jne .halteo
+   125                                  
+   126 000000B7 E8(00000000)                call init_pic ; PIC Init
+   127 000000BC E8(00000000)                call init_IDT;  IDT Init
+   128                                  
+   129 000000C1 B800000000                  mov eax, 0        ;Little Video Init
+   130 000000C6 A3[00000000]                mov [Digit_Table_Average], eax
+   131 000000CB B800800B00                  mov eax, VIDEO_BUFFER_ADDR
+   132 000000D0 A3[00000000]                mov [Screen_pointer],eax    
+   133                                  
+   134                                  
+   135 000000D5 EA[00000000][0000]          jmp CS_SEL_32:kernel32_init
+   136                                  
+   137                                  
+   138                                  .halteo
+   138          ******************       warning: label alone on a line without a colon might be in error [-w+orphan-labels]
+   139 000000DC F4                          hlt
+   140 000000DD EBFD                        jmp .halteo

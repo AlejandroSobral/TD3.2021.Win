@@ -1,0 +1,742 @@
+     1                                  %include "inc/processor-flags.h" 
+     1                              <1> %define X86_CR0_PE      0x00000001 ;/* Protectede mode enable*/
+     2                              <1> %define X86_CR0_MP      0x00000002 ;/* Monitor coProcessor*/
+     3                              <1> %define X86_CR0_EM      0x00000004 ;/* Emulation*/
+     4                              <1> %define X86_CR0_TS      0x00000008 ;/* Task Switched*/
+     5                              <1> %define X86_CR0_ET      0x00000010 ;/* Extension Type*/
+     6                              <1> %define X86_CR0_NE      0x00000020 ;/* Numeric Error*/
+     7                              <1> %define X86_CR0_WP      0x00010000 ;/* Write Protect*/
+     8                              <1> %define X86_CR0_AM      0x00040000 ;/* Alignment Mask*/
+     9                              <1> %define X86_CR0_NW      0x20000000 ;/* Not Write-through*/
+    10                              <1> %define X86_CR0_CD      0x40000000 ;/* Cache Disable*/
+    11                              <1> %define X86_CR0_PG      0x80000000 ;/* PaGine*/
+     2                                  %include "inc/defines.h" 
+     1                              <1> 
+     2                              <1> %define PORT_A_8042    0x60
+     3                              <1> %define CTRL_PORT_8042 0x64
+     4                              <1> %define KEYB_DIS       0xAD
+     5                              <1> %define KEYB_EN        0xAE
+     6                              <1> %define READ_OUT_8042  0xD0
+     7                              <1> %define WRITE_OUT_8042 0xD1
+     8                              <1> 
+     9                              <1> 
+    10                              <1> %define TECLA_1     0x02
+    11                              <1> %define TECLA_2     0x03
+    12                              <1> %define TECLA_3     0x04
+    13                              <1> %define TECLA_4     0x05
+    14                              <1> %define TECLA_5     0x06
+    15                              <1> %define TECLA_6     0x07
+    16                              <1> %define TECLA_7     0x08
+    17                              <1> %define TECLA_8     0x09
+    18                              <1> %define TECLA_9     0x0A
+    19                              <1> %define TECLA_0     0x0B
+    20                              <1> 
+    21                              <1> %define TECLA_ENTER 0x1C
+    22                              <1> 
+    23                              <1> %define TECLA_A     0x1E
+    24                              <1> %define TECLA_B     0x30
+    25                              <1> %define TECLA_C     0x2E
+    26                              <1> %define TECLA_D     0x20
+    27                              <1> %define TECLA_E     0x12
+    28                              <1> %define TECLA_F     0x21
+    29                              <1> %define TECLA_G     0x22
+    30                              <1> %define TECLA_H     0x23
+    31                              <1> %define TECLA_I     0x17
+    32                              <1> %define TECLA_J     0x24
+    33                              <1> %define TECLA_K     0x25
+    34                              <1> %define TECLA_L     0x26
+    35                              <1> %define TECLA_M     0x32
+    36                              <1> %define TECLA_N     0x31
+    37                              <1> %define TECLA_O     0x18
+    38                              <1> %define TECLA_P     0x19
+    39                              <1> %define TECLA_Q     0x10
+    40                              <1> %define TECLA_R     0x13
+    41                              <1> %define TECLA_S     0x1F
+    42                              <1> %define TECLA_T     0x14
+    43                              <1> %define TECLA_U     0x16
+    44                              <1> %define TECLA_V     0x2F
+    45                              <1> %define TECLA_W     0x11
+    46                              <1> %define TECLA_X     0x2D
+    47                              <1> %define TECLA_Y     0x15
+    48                              <1> %define TECLA_Z     0x2C
+     3                                  section .go_paging
+     4                                  
+     5                                  GLOBAL go_paging
+     6                                  EXTERN __SYS_TABLES_PHY      
+     7                                  EXTERN __SYS_TABLES_PHY      
+     8                                  EXTERN __PAGE_TABLES_PHY     
+     9                                  EXTERN __FUNCTIONS_PHY       
+    10                                  EXTERN __VIDEO_PHY           
+    11                                  EXTERN __ISR_AND_KEYBOARD_PHY
+    12                                  EXTERN __DATA_PHY            
+    13                                  EXTERN __TABLE_KEYBOARD_PHY  
+    14                                  EXTERN __KERNEL_32_PHY       
+    15                                  EXTERN __TASK_1_TEXT_PHY     
+    16                                  EXTERN __TASK_1_BSS_PHY      
+    17                                  EXTERN __TASK_1_DATA_PHY     
+    18                                  EXTERN __TASK_1_RODATA_PHY   
+    19                                  EXTERN __STACK_START_32_PHY  
+    20                                  EXTERN __STACK_END_32_PHY    
+    21                                  EXTERN __TASK_1_STACK_START_PHY
+    22                                  EXTERN __TASK_1_STACK_END_PHY
+    23                                  EXTERN __SYS_TABLES_IDT
+    24                                  EXTERN __PAGE_TABLES_VMA
+    25                                  EXTERN __VIDEO_VMA
+    26                                  EXTERN __load_DTP_entry
+    27                                  EXTERN __load_TP_entry
+    28                                  EXTERN __DATA_VMA
+    29                                  EXTERN __INIT_16_VMA
+    30                                  EXTERN __INIT_32_VMA
+    31                                  EXTERN __STACK_START_32_VMA
+    32                                  EXTERN __FUNCTIONS_VMA
+    33                                  EXTERN __SYS_TABLES_VMA
+    34                                  EXTERN __DATA_VMA
+    35                                  EXTERN __ISR_AND_KEYBOARD_VMA
+    36                                  EXTERN __KERNEL_32_VMA
+    37                                  EXTERN __TASK_1_BSS_VMA
+    38                                  EXTERN __TASK_1_RODATA_VMA
+    39                                  EXTERN __TASK_1_TEXT_VMA
+    40                                  EXTERN __TASK_1_DATA_VMA
+    41                                  EXTERN __TABLE_KEYBOARD_VMA
+    42                                  EXTERN __TASK_1_RODATA_PHY
+    43                                  EXTERN __TASK_1_STACK_START
+    44                                  EXTERN __STACK_START_32
+    45                                  EXTERN LOAD_CR3
+    46                                  
+    47                                  
+    48                                  PAG_PCD_YES equ 1       ; Cached                         
+    49                                  PAG_PCD_NO  equ 0       ; No-cached
+    50                                  PAG_PWT_YES equ 1       ; 1 to be write on Cache & Ram   
+    51                                  PAG_PWT_NO  equ 0       ; 0 
+    52                                  PAG_P_YES   equ 1       ; 1 Present
+    53                                  PAG_P_NO    equ 0       ; 0 No presente
+    54                                  PAG_RW_W    equ 1       ; 1 Read_Write
+    55                                  PAG_RW_R    equ 0       ; 0 Read only
+    56                                  PAG_US_SUP  equ 0       ; 0 Supervisor
+    57                                  PAG_US_US   equ 1       ; 1 User  
+    58                                  PAG_D       equ 0       ; Modify at page
+    59                                  PAG_PAT     equ 0       ; PAT                   
+    60                                  PAG_G_YES   equ 0       ; Global                 
+    61                                  PAG_A       equ 0       ; Accesed
+    62                                  PAG_PS_4K   equ 0       ; 4KB as PageSize
+    63                                  
+    64                                  go_paging:
+    65                                  
+    66                                  
+    67                                  
+    68                                  ;;;;;;;;;;;;;;;;;START - Page Directory Entries;;;;;;;;;;;;;;;;;;;;;     
+    69                                  
+    70                                      ;-> Entry 0 for DPT
+    71                                      ; VMA Directions I'm mapping here are: (Check that index Bits 31-22 are 0x00 for all of them!)
+    72                                      ;DPT Index -> (Bits 31-22)
+    73                                      ; __SYS_TABLES_IDT        = 0x00000000;                                                                   
+    74                                      ; __PAGE_TABLES_VMA       = 0x00010000;                                                           
+    75                                      ; __VIDEO_VMA             = 0x000B8000;
+    76                                      ; __TECLADO_ISR_VMA       = 0x00100000;
+    77                                      ; __DATA_VMA              = 0x00200000;
+    78                                      ; __FUNCTIONS_VMA         = 0x00207000;     
+    79                                      ; __TABLE_KEYBOARD_VMA    = 0x00210000; 
+    80                                      ; __KERNEL_32_VMA         = 0x00220000;
+    81                                      ; __TASK_1_VMA            = 0x00310000;
+    82                                      ; __TASK_1_TEXT_VMA       = 0x00310000;
+    83                                      ; __TASK_1_BSS_BMA        = 0x00320000;
+    84                                      ; __TASK_1_DATA_VMA       = 0x00330000;
+    85                                      ; __TASK_1_RODATA_VMA     = 0x00340000;
+    86                                  
+    87                                    
+    88                                    ; Set CR3 at DPT base add
+    89 00000000 55                          push    ebp
+    90 00000001 89E5                        mov     ebp, esp
+    91 00000003 6A01                        push    PAG_PWT_YES
+    92 00000005 6A01                        push    PAG_PCD_YES
+    93 00000007 68[00000000]                push    dword __PAGE_TABLES_VMA
+    94 0000000C E8(00000000)                call    LOAD_CR3
+    95 00000011 0F22D8                      mov     cr3, eax
+    96 00000014 C9                          leave    
+    97                                               
+    98                                      ; Not doing any calculations this time, just add all entries and let my code calculate.
+    99                                  
+   100 00000015 55                          push    ebp
+   101 00000016 89E5                        mov     ebp, esp
+   102 00000018 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   103 0000001A 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   104 0000001C 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   105 0000001E 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   106 00000020 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   107 00000022 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   108 00000024 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   109 00000026 68[00000000]                push    dword(__SYS_TABLES_VMA)             ; VMA Adds
+   110 0000002B 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   111 00000030 E8(00000000)                call    __load_DTP_entry
+   112 00000035 C9                          leave
+   113                                  
+   114                                  
+   115                                  
+   116                                  
+   117                                      ;-> Entry 1 for DPT
+   118                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   119                                               
+   120                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   121 00000036 55                          push    ebp
+   122 00000037 89E5                        mov     ebp, esp
+   123 00000039 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   124 0000003B 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   125 0000003D 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   126 0000003F 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   127 00000041 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   128 00000043 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   129 00000045 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   130 00000047 68[00000000]                push    dword(__PAGE_TABLES_VMA)             ; VMA Adds
+   131 0000004C 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   132 00000051 E8(00000000)                call    __load_DTP_entry
+   133                                  
+   134 00000056 C9                          leave
+   135                                  
+   136                                  
+   137                                  
+   138                                      ;-> Entry 2 for DPT
+   139                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   140                                               
+   141                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   142 00000057 55                          push    ebp
+   143 00000058 89E5                        mov     ebp, esp
+   144 0000005A 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   145 0000005C 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   146 0000005E 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   147 00000060 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   148 00000062 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   149 00000064 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   150 00000066 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   151 00000068 68[00000000]                push    dword(__FUNCTIONS_VMA)             ; VMA Adds
+   152 0000006D 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   153 00000072 E8(00000000)                call    __load_DTP_entry
+   154 00000077 C9                          leave
+   155                                  
+   156                                      ;-> Entry 3 for DPT
+   157                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   158                                               
+   159                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   160 00000078 55                          push    ebp
+   161 00000079 89E5                        mov     ebp, esp
+   162 0000007B 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   163 0000007D 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   164 0000007F 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   165 00000081 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   166 00000083 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   167 00000085 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   168 00000087 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   169 00000089 68[00000000]                push    dword(__VIDEO_VMA)             ; VMA Adds
+   170 0000008E 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   171 00000093 E8(00000000)                call    __load_DTP_entry
+   172 00000098 C9                          leave    
+   173                                  
+   174                                  
+   175                                      ;-> Entry 4 for DPT
+   176                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   177                                               
+   178                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   179 00000099 55                          push    ebp
+   180 0000009A 89E5                        mov     ebp, esp
+   181 0000009C 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   182 0000009E 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   183 000000A0 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   184 000000A2 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   185 000000A4 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   186 000000A6 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   187 000000A8 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   188 000000AA 68[00000000]                push    dword(__ISR_AND_KEYBOARD_VMA)             ; VMA Adds
+   189 000000AF 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   190 000000B4 E8(00000000)                call    __load_DTP_entry
+   191 000000B9 C9                          leave
+   192                                  
+   193                                  
+   194                                      ;-> Entry 5 for DPT
+   195                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   196                                               
+   197                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   198 000000BA 55                          push    ebp
+   199 000000BB 89E5                        mov     ebp, esp
+   200 000000BD 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   201 000000BF 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   202 000000C1 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   203 000000C3 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   204 000000C5 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   205 000000C7 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   206 000000C9 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   207 000000CB 68[00000000]                push    dword(__DATA_VMA)                   ; VMA Adds
+   208 000000D0 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   209 000000D5 E8(00000000)                call    __load_DTP_entry
+   210 000000DA C9                          leave
+   211                                  
+   212                                      ;-> Entry 6 for DPT
+   213                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   214                                               
+   215                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   216 000000DB 55                          push    ebp
+   217 000000DC 89E5                        mov     ebp, esp
+   218 000000DE 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   219 000000E0 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   220 000000E2 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   221 000000E4 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   222 000000E6 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   223 000000E8 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   224 000000EA 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   225 000000EC 68[00000000]                push    dword(__TABLE_KEYBOARD_VMA)         ; VMA Adds
+   226 000000F1 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   227 000000F6 E8(00000000)                call    __load_DTP_entry
+   228 000000FB C9                          leave
+   229                                  
+   230                                      ;-> Entry 7 for DPT
+   231                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   232                                               
+   233                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   234 000000FC 55                          push    ebp
+   235 000000FD 89E5                        mov     ebp, esp
+   236 000000FF 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   237 00000101 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   238 00000103 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   239 00000105 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   240 00000107 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   241 00000109 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   242 0000010B 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   243 0000010D 68[00000000]                push    dword(__KERNEL_32_VMA)              ; VMA Adds
+   244 00000112 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   245 00000117 E8(00000000)                call    __load_DTP_entry
+   246 0000011C C9                          leave
+   247                                  
+   248                                      ;-> Entry 8 for DPT
+   249                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   250                                               
+   251                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   252 0000011D 55                          push    ebp
+   253 0000011E 89E5                        mov     ebp, esp
+   254 00000120 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   255 00000122 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   256 00000124 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   257 00000126 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   258 00000128 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   259 0000012A 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   260 0000012C 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   261 0000012E 68[00000000]                push    dword(__TASK_1_TEXT_VMA)            ; VMA Adds
+   262 00000133 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   263 00000138 E8(00000000)                call    __load_DTP_entry
+   264 0000013D C9                          leave
+   265                                  
+   266                                      ;-> Entry 9 for DPT
+   267                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   268                                               
+   269                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   270 0000013E 55                          push    ebp
+   271 0000013F 89E5                        mov     ebp, esp
+   272 00000141 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   273 00000143 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   274 00000145 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   275 00000147 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   276 00000149 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   277 0000014B 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   278 0000014D 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   279 0000014F 68[00000000]                push    dword(__TASK_1_BSS_VMA)             ; VMA Adds
+   280 00000154 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   281 00000159 E8(00000000)                call    __load_DTP_entry
+   282 0000015E C9                          leave
+   283                                  
+   284                                      ;-> Entry 10 for DPT
+   285                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   286                                               
+   287                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   288 0000015F 55                          push    ebp
+   289 00000160 89E5                        mov     ebp, esp
+   290 00000162 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   291 00000164 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   292 00000166 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   293 00000168 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   294 0000016A 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   295 0000016C 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   296 0000016E 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   297 00000170 68[00000000]                push    dword(__TASK_1_DATA_VMA)             ; VMA Adds
+   298 00000175 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   299 0000017A E8(00000000)                call    __load_DTP_entry
+   300 0000017F C9                          leave    
+   301                                  
+   302                                      ;-> Entry 11 for DPT
+   303                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   304                                               
+   305                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   306 00000180 55                          push    ebp
+   307 00000181 89E5                        mov     ebp, esp
+   308 00000183 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   309 00000185 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   310 00000187 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   311 00000189 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   312 0000018B 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   313 0000018D 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   314 0000018F 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   315 00000191 68[00000000]                push    dword(__TASK_1_RODATA_VMA)          ; VMA Adds
+   316 00000196 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   317 0000019B E8(00000000)                call    __load_DTP_entry
+   318 000001A0 C9                          leave       
+   319                                  
+   320                                      ;-> Entry 12 for DPT
+   321                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   322                                               
+   323                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   324 000001A1 55                          push    ebp
+   325 000001A2 89E5                        mov     ebp, esp
+   326 000001A4 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   327 000001A6 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   328 000001A8 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   329 000001AA 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   330 000001AC 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   331 000001AE 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   332 000001B0 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   333 000001B2 68[00000000]                push    dword(__STACK_START_32)         ; VMA Adds
+   334 000001B7 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   335 000001BC E8(00000000)                call    __load_DTP_entry
+   336 000001C1 C9                          leave
+   337                                  
+   338                                      ;-> Entry 13 for DPT
+   339                                      ; Not doing any calculations this time, just add all entries and let my code calculate. 
+   340                                               
+   341                                      ; I'm pushing VMA with exactly the same INDEX, that's why I pushed just one VMA i.e. __STACK_START_32
+   342 000001C2 55                          push    ebp
+   343 000001C3 89E5                        mov     ebp, esp
+   344 000001C5 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   345 000001C7 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   346 000001C9 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   347 000001CB 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   348 000001CD 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   349 000001CF 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   350 000001D1 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   351 000001D3 68[00000000]                push    dword(__TASK_1_STACK_START)     ; VMA Adds
+   352 000001D8 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   353 000001DD E8(00000000)                call    __load_DTP_entry
+   354 000001E2 C9                          leave
+   355                                  
+   356                                  
+   357                                      ;-> Entry 14 for DPT
+   358                                      ; Not doing any calculations this time, just add all entries and let my code calculate.
+   359                                  
+   360 000001E3 55                          push    ebp
+   361 000001E4 89E5                        mov     ebp, esp
+   362 000001E6 6A01                        push    PAG_P_YES                           ; Present. P = 1 on memory. P=0, out of mem.
+   363 000001E8 6A01                        push    PAG_RW_W                            ; Readable / Writable: RO = 0; W = 1;
+   364 000001EA 6A00                        push    PAG_US_SUP                          ; User / Supervisor: Set page privileges, Kernel = 0; User = 1
+   365 000001EC 6A00                        push    PAG_PWT_NO                          ; Page-Level Write Through. Cache writing mode
+   366 000001EE 6A00                        push    PAG_PCD_NO                          ; Page-Level Cache Disable. Set page into non-cached memory.
+   367 000001F0 6A00                        push    PAG_A                               ; Accesed. To be write each time page is used.
+   368 000001F2 6A00                        push    PAG_PS_4K                           ; Page Size: Set 0 for 4kB page, 1 for 4 Mb
+   369 000001F4 68[00000000]                push    dword(__INIT_16_VMA)                ; VMA Adds
+   370 000001F9 68[00000000]                push    dword(__PAGE_TABLES_PHY)            ; Start itself
+   371 000001FE E8(00000000)                call    __load_DTP_entry
+   372 00000203 C9                          leave
+   373                                  
+   374                                  ;;;;;;;;;;;;;;;;;END - Page Directory Entries;;;;;;;;;;;;;;;;;;;;;    
+   375                                  
+   376                                  ;;;;;;;;;;;;;;;;;;;;START -  Table Paging (TP) Mapping;;;;;;;;;;;;;;;;;;;;;
+   377                                      ; TP Index -> Bits 21-12 from VMA
+   378                                    ;-----------------------------------------------------------------
+   379                                      ;1st Page - Systables. __SYS_TABLES_VMA = 0x00000000)
+   380                                    ;-----------------------------------------------------------------
+   381 00000204 55                          push    ebp
+   382 00000205 89E5                        mov     ebp, esp
+   383 00000207 6A01                        push PAG_P_YES
+   384 00000209 6A00                        push PAG_RW_R
+   385 0000020B 6A00                        push PAG_US_SUP
+   386 0000020D 6A00                        push PAG_PWT_NO
+   387 0000020F 6A00                        push PAG_PCD_NO
+   388 00000211 6A00                        push PAG_A
+   389 00000213 6A00                        push PAG_D
+   390 00000215 6A00                        push PAG_PAT
+   391 00000217 6A00                        push PAG_G_YES
+   392 00000219 68[00000000]                push dword(__SYS_TABLES_PHY)
+   393 0000021E 68[00000000]                push dword(__SYS_TABLES_VMA)
+   394 00000223 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   395 00000228 E8(00000000)                call __load_TP_entry 
+   396 0000022D C9                          leave
+   397                                  
+   398                                    ;-----------------------------------------------------------------
+   399                                      ;2nd Page __PAGE_TABLES_VMA = 0x00010000
+   400                                    ;-----------------------------------------------------------------
+   401                                  
+   402 0000022E 55                          push    ebp
+   403 0000022F 89E5                        mov     ebp, esp
+   404 00000231 6A01                        push PAG_P_YES
+   405 00000233 6A01                        push PAG_RW_W
+   406 00000235 6A00                        push PAG_US_SUP
+   407 00000237 6A00                        push PAG_PWT_NO
+   408 00000239 6A00                        push PAG_PCD_NO
+   409 0000023B 6A00                        push PAG_A
+   410 0000023D 6A00                        push PAG_D
+   411 0000023F 6A00                        push PAG_PAT
+   412 00000241 6A00                        push PAG_G_YES    
+   413 00000243 68[00000000]                push dword(__PAGE_TABLES_PHY)
+   414 00000248 68[00000000]                push dword(__PAGE_TABLES_VMA)
+   415 0000024D 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   416 00000252 E8(00000000)                call __load_TP_entry 
+   417 00000257 C9                          leave
+   418                                  
+   419                                    ;-----------------------------------------------------------------
+   420                                      ;3rd Page - Functions __FUNCTIONS_VMA = 0x00500000
+   421                                    ;-----------------------------------------------------------------
+   422                                  
+   423 00000258 55                          push    ebp
+   424 00000259 89E5                        mov     ebp, esp
+   425 0000025B 6A01                        push PAG_P_YES
+   426 0000025D 6A01                        push PAG_RW_W
+   427 0000025F 6A00                        push PAG_US_SUP
+   428 00000261 6A00                        push PAG_PWT_NO
+   429 00000263 6A00                        push PAG_PCD_NO
+   430 00000265 6A00                        push PAG_A
+   431 00000267 6A00                        push PAG_D
+   432 00000269 6A00                        push PAG_PAT
+   433 0000026B 6A00                        push PAG_G_YES
+   434 0000026D 68[00000000]                push dword(__FUNCTIONS_PHY)
+   435 00000272 68[00000000]                push dword(__FUNCTIONS_VMA)
+   436 00000277 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   437 0000027C E8(00000000)                call __load_TP_entry 
+   438 00000281 C9                          leave
+   439                                  
+   440                                    ;-----------------------------------------------------------------
+   441                                      ;4th Page __VIDEO_VMA = 0x00E80000;
+   442                                    ;-----------------------------------------------------------------
+   443                                  
+   444 00000282 55                          push    ebp
+   445 00000283 89E5                        mov     ebp, esp
+   446 00000285 6A01                        push PAG_P_YES
+   447 00000287 6A01                        push PAG_RW_W 
+   448 00000289 6A00                        push PAG_US_SUP
+   449 0000028B 6A00                        push PAG_PWT_NO
+   450 0000028D 6A00                        push PAG_PCD_NO
+   451 0000028F 6A00                        push PAG_A
+   452 00000291 6A00                        push PAG_D
+   453 00000293 6A00                        push PAG_PAT
+   454 00000295 6A00                        push PAG_G_YES
+   455 00000297 68[00000000]                push dword(__VIDEO_PHY)
+   456 0000029C 68[00000000]                push dword(__VIDEO_VMA)
+   457 000002A1 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   458 000002A6 E8(00000000)                call __load_TP_entry 
+   459 000002AB C9                          leave
+   460                                  
+   461                                    ;-----------------------------------------------------------------
+   462                                      ;5th Page __ISR_AND_KEYBOARD_VMA  = 0x00100000;
+   463                                    ;-----------------------------------------------------------------
+   464                                  
+   465 000002AC 55                          push    ebp
+   466 000002AD 89E5                        mov     ebp, esp
+   467 000002AF 6A01                        push PAG_P_YES
+   468 000002B1 6A01                        push PAG_RW_W
+   469 000002B3 6A00                        push PAG_US_SUP
+   470 000002B5 6A00                        push PAG_PWT_NO
+   471 000002B7 6A00                        push PAG_PCD_NO
+   472 000002B9 6A00                        push PAG_A
+   473 000002BB 6A00                        push PAG_D
+   474 000002BD 6A00                        push PAG_PAT
+   475 000002BF 6A00                        push PAG_G_YES
+   476 000002C1 68[00000000]                push dword(__ISR_AND_KEYBOARD_PHY)
+   477 000002C6 68[00000000]                push dword(__ISR_AND_KEYBOARD_VMA)
+   478 000002CB 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   479 000002D0 E8(00000000)                call __load_TP_entry 
+   480 000002D5 C9                          leave       
+   481                                  
+   482                                    ;-----------------------------------------------------------------
+   483                                      ;6º Page __DATA_VMA    = 0x01200000;
+   484                                    ;-----------------------------------------------------------------
+   485 000002D6 55                          push    ebp
+   486 000002D7 89E5                        mov     ebp, esp
+   487 000002D9 6A01                        push PAG_P_YES
+   488 000002DB 6A01                        push PAG_RW_W
+   489 000002DD 6A00                        push PAG_US_SUP
+   490 000002DF 6A00                        push PAG_PWT_NO
+   491 000002E1 6A00                        push PAG_PCD_NO
+   492 000002E3 6A00                        push PAG_A
+   493 000002E5 6A00                        push PAG_D
+   494 000002E7 6A00                        push PAG_PAT
+   495 000002E9 6A00                        push PAG_G_YES
+   496 000002EB 68[00000000]                push dword(__DATA_PHY)
+   497 000002F0 68[00000000]                push dword(__DATA_VMA)
+   498 000002F5 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   499 000002FA E8(00000000)                call __load_TP_entry 
+   500 000002FF C9                          leave  
+   501                                  
+   502                                      ;-----------------------------------------------------------------
+   503                                      ;7th   __TABLE_KEYBOARD_VMA    = 0x00210000; 
+   504                                      ;-----------------------------------------------------------------
+   505 00000300 55                          push    ebp
+   506 00000301 89E5                        mov     ebp, esp
+   507 00000303 6A01                        push PAG_P_YES
+   508 00000305 6A01                        push PAG_RW_W
+   509 00000307 6A00                        push PAG_US_SUP
+   510 00000309 6A00                        push PAG_PWT_NO
+   511 0000030B 6A00                        push PAG_PCD_NO
+   512 0000030D 6A00                        push PAG_A
+   513 0000030F 6A00                        push PAG_D
+   514 00000311 6A00                        push PAG_PAT
+   515 00000313 6A00                        push PAG_G_YES
+   516 00000315 68[00000000]                push dword(__TABLE_KEYBOARD_PHY)
+   517 0000031A 68[00000000]                push dword(__TABLE_KEYBOARD_VMA)
+   518 0000031F 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   519 00000324 E8(00000000)                call __load_TP_entry 
+   520 00000329 C9                          leave 
+   521                                  
+   522                                    ;   ;-----------------------------------------------------------------
+   523                                    ;  ; 8th __KERNEL_32_VMA = 0x01220000;
+   524                                    ;   ;-----------------------------------------------------------------
+   525 0000032A 55                          push    ebp
+   526 0000032B 89E5                        mov     ebp, esp
+   527 0000032D 6A01                        push PAG_P_YES
+   528 0000032F 6A00                        push PAG_RW_R
+   529 00000331 6A00                        push PAG_US_SUP
+   530 00000333 6A00                        push PAG_PWT_NO
+   531 00000335 6A00                        push PAG_PCD_NO
+   532 00000337 6A00                        push PAG_A
+   533 00000339 6A00                        push PAG_D
+   534 0000033B 6A00                        push PAG_PAT
+   535 0000033D 6A00                        push PAG_G_YES
+   536 0000033F 68[00000000]                push dword(__KERNEL_32_PHY)
+   537 00000344 68[00000000]                push dword(__KERNEL_32_VMA)
+   538 00000349 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   539 0000034E E8(00000000)                call __load_TP_entry 
+   540 00000353 C9                          leave 
+   541                                      ;-----------------------------------------------------------------
+   542                                      ;9th __TASK_1_TEXT_VMA   = 0x01310000;
+   543                                      ;-----------------------------------------------------------------
+   544 00000354 55                          push    ebp
+   545 00000355 89E5                        mov     ebp, esp
+   546 00000357 6A01                        push PAG_P_YES
+   547 00000359 6A00                        push PAG_RW_R
+   548 0000035B 6A00                        push PAG_US_SUP
+   549 0000035D 6A00                        push PAG_PWT_NO
+   550 0000035F 6A00                        push PAG_PCD_NO
+   551 00000361 6A00                        push PAG_A
+   552 00000363 6A00                        push PAG_D
+   553 00000365 6A00                        push PAG_PAT
+   554 00000367 6A00                        push PAG_G_YES
+   555 00000369 68[00000000]                push dword(__TASK_1_TEXT_PHY)
+   556 0000036E 68[00000000]                push dword(__TASK_1_TEXT_VMA)
+   557 00000373 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   558 00000378 E8(00000000)                call __load_TP_entry 
+   559 0000037D C9                          leave 
+   560                                  
+   561                                      ;-----------------------------------------------------------------
+   562                                      ;10° __TASK_1_BSS_VMA = 0x00320000;
+   563                                      ;-----------------------------------------------------------------
+   564 0000037E 55                          push    ebp
+   565 0000037F 89E5                        mov     ebp, esp
+   566 00000381 6A01                        push PAG_P_YES
+   567 00000383 6A01                        push PAG_RW_W
+   568 00000385 6A00                        push PAG_US_SUP
+   569 00000387 6A00                        push PAG_PWT_NO
+   570 00000389 6A00                        push PAG_PCD_NO
+   571 0000038B 6A00                        push PAG_A
+   572 0000038D 6A00                        push PAG_D
+   573 0000038F 6A00                        push PAG_PAT
+   574 00000391 6A00                        push PAG_G_YES
+   575 00000393 68[00000000]                push dword(__TASK_1_BSS_PHY)
+   576 00000398 68[00000000]                push dword(__TASK_1_BSS_VMA)
+   577 0000039D 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   578 000003A2 E8(00000000)                call __load_TP_entry 
+   579 000003A7 C9                          leave 
+   580                                  
+   581                                      ;-----------------------------------------------------------------
+   582                                      ;11th   __TASK_1_DATA_VMA      = 0x01330000;
+   583                                      ;-----------------------------------------------------------------
+   584 000003A8 55                          push    ebp
+   585 000003A9 89E5                        mov     ebp, esp
+   586 000003AB 6A01                        push PAG_P_YES
+   587 000003AD 6A01                        push PAG_RW_W
+   588 000003AF 6A00                        push PAG_US_SUP
+   589 000003B1 6A00                        push PAG_PWT_NO
+   590 000003B3 6A00                        push PAG_PCD_NO
+   591 000003B5 6A00                        push PAG_A
+   592 000003B7 6A00                        push PAG_D
+   593 000003B9 6A00                        push PAG_PAT
+   594 000003BB 6A00                        push PAG_G_YES
+   595 000003BD 68[00000000]                push dword(__TASK_1_DATA_PHY)
+   596 000003C2 68[00000000]                push dword(__TASK_1_DATA_VMA)
+   597 000003C7 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   598 000003CC E8(00000000)                call __load_TP_entry 
+   599 000003D1 C9                          leave 
+   600                                  
+   601                                      ;-----------------------------------------------------------------
+   602                                      ;12th  __TASK_1_RODATA_VMA    = 0x01340000;   
+   603                                      ;-----------------------------------------------------------------
+   604 000003D2 55                          push    ebp
+   605 000003D3 89E5                        mov     ebp, esp
+   606 000003D5 6A01                        push PAG_P_YES
+   607 000003D7 6A00                        push PAG_RW_R
+   608 000003D9 6A00                        push PAG_US_SUP
+   609 000003DB 6A00                        push PAG_PWT_NO
+   610 000003DD 6A00                        push PAG_PCD_NO
+   611 000003DF 6A00                        push PAG_A
+   612 000003E1 6A00                        push PAG_D
+   613 000003E3 6A00                        push PAG_PAT
+   614 000003E5 6A00                        push PAG_G_YES
+   615 000003E7 68[00000000]                push dword(__TASK_1_RODATA_PHY)
+   616 000003EC 68[00000000]                push dword(__TASK_1_RODATA_VMA)
+   617 000003F1 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   618 000003F6 E8(00000000)                call __load_TP_entry 
+   619 000003FB C9                          leave 
+   620                                  
+   621                                      ;-----------------------------------------------------------------
+   622                                      ;13th  __STACK_START_32   = 0x1FFF8000;
+   623                                      ;-----------------------------------------------------------------
+   624 000003FC 55                          push    ebp
+   625 000003FD 89E5                        mov     ebp, esp
+   626 000003FF 6A01                        push PAG_P_YES
+   627 00000401 6A01                        push PAG_RW_W
+   628 00000403 6A00                        push PAG_US_SUP
+   629 00000405 6A00                        push PAG_PWT_NO
+   630 00000407 6A00                        push PAG_PCD_NO
+   631 00000409 6A00                        push PAG_A
+   632 0000040B 6A00                        push PAG_D
+   633 0000040D 6A00                        push PAG_PAT
+   634 0000040F 6A00                        push PAG_G_YES
+   635 00000411 68[00000000]                push dword(__STACK_START_32_PHY)
+   636 00000416 68[00000000]                push dword(__STACK_START_32)
+   637 0000041B 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   638 00000420 E8(00000000)                call __load_TP_entry 
+   639 00000425 C9                          leave 
+   640                                  
+   641                                  
+   642                                      ;-----------------------------------------------------------------
+   643                                      ;14th __TASK_1_STACK_START   = 0x0078F000; 
+   644                                      ;-----------------------------------------------------------------
+   645 00000426 55                          push    ebp
+   646 00000427 89E5                        mov     ebp, esp
+   647 00000429 6A01                        push PAG_P_YES
+   648 0000042B 6A01                        push PAG_RW_W
+   649 0000042D 6A00                        push PAG_US_SUP
+   650 0000042F 6A00                        push PAG_PWT_NO
+   651 00000431 6A00                        push PAG_PCD_NO
+   652 00000433 6A00                        push PAG_A
+   653 00000435 6A00                        push PAG_D
+   654 00000437 6A00                        push PAG_PAT
+   655 00000439 6A00                        push PAG_G_YES
+   656 0000043B 68[00000000]                push dword(__TASK_1_STACK_START_PHY)
+   657 00000440 68[00000000]                push dword(__TASK_1_STACK_START)
+   658 00000445 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   659 0000044A E8(00000000)                call __load_TP_entry 
+   660 0000044F C9                          leave 
+   661                                  
+   662                                      ; ;-----------------------------------------------------------------
+   663                                      ; ;15th    __INIT_32_VMA          = Dynamic LMA after Init16;
+   664                                      ; ;-----------------------------------------------------------------
+   665 00000450 55                          push    ebp
+   666 00000451 89E5                        mov     ebp, esp
+   667 00000453 6A01                        push PAG_P_YES
+   668 00000455 6A01                        push PAG_RW_W
+   669 00000457 6A00                        push PAG_US_SUP
+   670 00000459 6A00                        push PAG_PWT_NO
+   671 0000045B 6A00                        push PAG_PCD_NO
+   672 0000045D 6A00                        push PAG_A
+   673 0000045F 6A00                        push PAG_D
+   674 00000461 6A00                        push PAG_PAT
+   675 00000463 6A00                        push PAG_G_YES
+   676 00000465 68[00000000]                push dword(__INIT_32_VMA)
+   677 0000046A 68[00000000]                push dword(__INIT_32_VMA)
+   678 0000046F 68[00000000]                push dword(__PAGE_TABLES_PHY) ;TP Init, After DTP 
+   679 00000474 E8(00000000)                call __load_TP_entry 
+   680 00000479 C9                          leave 
+   681                                    ;; Ready to turn on paging, say touching CR registers, go on
+   682                                  
+   683 0000047A C3                          ret ; Return ready to turn on paging

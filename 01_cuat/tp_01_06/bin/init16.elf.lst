@@ -1,0 +1,106 @@
+     1                                  USE16
+     2                                  
+     3                                  SECTION .init16
+     4                                  
+     5                                  %include "inc/processor-flags.h" 
+     1                              <1> %define X86_CR0_PE      0x00000001 ;/* Protectede mode enable*/
+     2                              <1> %define X86_CR0_MP      0x00000002 ;/* Monitor coProcessor*/
+     3                              <1> %define X86_CR0_EM      0x00000004 ;/* Emulation*/
+     4                              <1> %define X86_CR0_TS      0x00000008 ;/* Task Switched*/
+     5                              <1> %define X86_CR0_ET      0x00000010 ;/* Extension Type*/
+     6                              <1> %define X86_CR0_NE      0x00000020 ;/* Numeric Error*/
+     7                              <1> %define X86_CR0_WP      0x00010000 ;/* Write Protect*/
+     8                              <1> %define X86_CR0_AM      0x00040000 ;/* Alignment Mask*/
+     9                              <1> %define X86_CR0_NW      0x20000000 ;/* Not Write-through*/
+    10                              <1> %define X86_CR0_CD      0x40000000 ;/* Cache Disable*/
+    11                              <1> %define X86_CR0_PG      0x80000000 ;/* PaGine*/
+     6                                  ;Start and jump by now
+     7                                  
+     8                                  GLOBAL init16
+     9                                  EXTERN entry
+    10                                  
+    11                                  EXTERN _gdtr
+    12                                  EXTERN CS_SEL_32
+    13                                  EXTERN start32_launcher
+    14                                  EXTERN __STACK_START_16
+    15                                  EXTERN __STACK_END_16
+    16                                  
+    17                                  %define PORT_A_8042    0x60
+    18                                  %define CTRL_PORT_8042 0x64
+    19                                  %define KEYB_DIS       0xAD
+    20                                  %define KEYB_EN        0xAE
+    21                                  %define READ_OUT_8042  0xD0
+    22                                  %define WRITE_OUT_8042 0xD1
+    23                                  
+    24                                  
+    25                                  init16:
+    26                                  
+    27                                  
+    28 00000000 66A900000000                test eax,0x0    ;Check uP status
+    29 00000006 7537                        jne fault_end
+    30                                  
+    31                                  
+    32                                      
+    33                                  
+    34 00000008 6631C0                      xor eax,eax
+    35 0000000B 0F22D8                      mov cr3,eax         ;Disabhle TLB
+    36                                  
+    37                                      ;Set 16 bits stacks
+    38 0000000E 8CC8                        mov ax,cs
+    39 00000010 8ED8                        mov ds,ax
+    40 00000012 B8[0000]                    mov ax,__STACK_START_16
+    41 00000015 8ED0                        mov ss,ax
+    42 00000017 BC[0000]                    mov sp,__STACK_END_16
+    43                                  
+    44                                      ;Disable cache
+    45 0000001A 0F20C0                      mov eax,cr0
+    46 0000001D 660D00000060                or eax, (X86_CR0_NW | X86_CR0_CD)
+    47 00000023 0F22C0                      mov cr0,eax
+    48 00000026 0F09                        wbinvd
+    49                                  
+    50                                      
+    51 00000028 660F0116[0000]              o32 lgdt [_gdtr]
+    52                                  
+    53                                  
+    54                                  
+    55                                      ;Set Protected Mode
+    56 0000002E 0F01E0                      smsw ax
+    57 00000031 83C801                      or   ax, X86_CR0_PE
+    58 00000034 0F01F0                      lmsw ax
+    59                                      
+    60 00000037 66EA[00000000]-             jmp dword CS_SEL_32:start32_launcher
+    60 0000003D [0000]             
+    61                                  
+    62                                      fault_end:
+    63 0000003F F4                              hlt
+    64                                  
+    65                                  
+    66                                  
+    67                                  
+    68                                  
+    69                                  
+    70                                  
+    71                                  
+    72                                  
+    73                                  
+    74                                  ;
+    75                                  ;
+    76                                  ;
+    77                                  %define PORT_A_8042    0x60
+    78                                  %define CTRL_PORT_8042 0x64
+    79                                  %define KEYB_DIS       0xAD
+    80                                  %define KEYB_EN        0xAE
+    81                                  %define READ_OUT_8042  0xD0
+    82                                  %define WRITE_OUT_8042 0xD1
+    83                                  
+    84                                  
+    85                                  
+    86                                  
+    87                                  
+    88                                  
+    89                                  
+    90                                  
+    91                                  
+    92                                  
+    93                                  
+    94                                  

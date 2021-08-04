@@ -1,0 +1,78 @@
+     1                                  
+     2                                  
+     3                                  section .kernel32
+     4                                  USE32
+     5                                  GLOBAL kernel32_code_size
+     6                                  GLOBAL kernel32_init
+     7                                  
+     8                                  EXTERN __SYS_TABLES_IDT
+     9                                  EXTERN __SYS_TABLES_GDT
+    10                                  
+    11                                  ;Global Variables
+    12                                  EXTERN buffer_Clear
+    13                                  EXTERN Keyboard_Buffer_Itself
+    14                                  EXTERN Load_Keyboard_table_Itself
+    15                                  EXTERN _64bits_average_func
+    16                                  EXTERN Screen_Writing
+    17                                  EXTERN Screen_pointer
+    18                                  EXTERN Digit_Table_Average
+    19                                  EXTERN Flag_Task_1;
+    20                                  VIDEO_BUFFER_ADDR EQU 0x000B8000
+    21                                  ;Function references
+    22                                  EXTERN init_timer0
+    23                                  
+    24                                  GDT_LENGTH EQU (4); 4 descriptors of 32kb each one
+    25                                  
+    26                                  
+    27                                  kernel32_code_size EQU (kernel32_end-kernel32_init)
+    28                                  
+    29 00000000 1801                    _idtr   dw ((0x21*8)+(0x2*8))
+    30 00000002 [00000000]                      dd __SYS_TABLES_IDT
+    31                                  
+    32 00000006 1F00                    _gdtr   dw (4*8)-1;4 descriptors of 32kb each one
+    33 00000008 [00000000]                      dd __SYS_TABLES_GDT
+    34                                  
+    35                                  kernel32_init:
+    36                                  
+    37                                  
+    38 0000000C 0F011D[00000000]            lidt[_idtr] ;Load IDT
+    39 00000013 0F0115[06000000]            lgdt [_gdtr];Load GDT
+    40 0000001A E8(00000000)                call init_timer0; Init Timer Channel 0 after setting the IDT table
+    41                                  
+    42 0000001F 68[00000000]                push dword Keyboard_Buffer_Itself; Clear the keyboard buffer before start
+    43 00000024 E8(00000000)                call buffer_Clear;
+    44 00000029 68[00000000]                push dword Load_Keyboard_table_Itself; Clear the keyboard table buffer before start
+    45 0000002E E8(00000000)                call buffer_Clear;
+    46                                   
+    47 00000033 6687DB                      xchg bx,bx
+    48 00000036 FB                          sti; Set on interrupts
+    49                                  
+    50                                  wait_for_flag:
+    51 00000037 A1[00000000]                mov eax, dword [Flag_Task_1]
+    52 0000003C 83F801                      cmp eax, 0x01;
+    53 0000003F 7403                        je Average_on;
+    54 00000041 EBF4                        jmp wait_for_flag; No task
+    55 00000043 90                          nop
+    56                                  
+    57                                  Average_on:
+    58 00000044 B800000000                  mov eax, 0x00
+    59 00000049 A3[00000000]                mov dword [Flag_Task_1], eax;Reset task flag
+    60                                  
+    61 0000004E B800800B00                  mov eax, VIDEO_BUFFER_ADDR
+    62 00000053 A3[00000000]                mov [Screen_pointer],eax;  Reload the screen pointer    
+    63                                  
+    64 00000058 68[00000000]                push dword Digit_Table_Average
+    65 0000005D 68[00000000]                push dword Load_Keyboard_table_Itself
+    66 00000062 E8(00000000)                call _64bits_average_func
+    67 00000067 83C408                      add esp,8
+    68                                   
+    69                                  
+    70 0000006A 6A40                        push 64 
+    71 0000006C 6A00                        push 0     
+    72 0000006E 68[00000000]                push dword Digit_Table_Average     
+    73 00000073 FF35[00000000]              push dword [Screen_pointer]
+    74 00000079 E8(00000000)                call Screen_Writing
+    75 0000007E 83C410                      add esp, 16        
+    76 00000081 EBB4                        jmp wait_for_flag ; Waiting for interrupts endless cycle
+    77                                  
+    78                                  kernel32_end:

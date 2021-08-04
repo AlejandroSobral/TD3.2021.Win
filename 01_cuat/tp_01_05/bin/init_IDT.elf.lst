@@ -1,0 +1,268 @@
+     1                                  EXTERN  IDT_handler_loader
+     2                                  EXTERN CS_SEL_32
+     3                                  EXTERN __SYS_TABLES_IDT
+     4                                  
+     5                                  
+     6                                  EXTERN EXCEPTION_DE     ; Tipo 0
+     7                                  EXTERN EXCEPTION_DB     ; Tipo 1
+     8                                  EXTERN EXCEPTION_NMI    ; Tipo 2
+     9                                  EXTERN EXCEPTION_BE     ; Tipo 3
+    10                                  EXTERN EXCEPTION_OF     ; Tipo 4
+    11                                  EXTERN EXCEPTION_BR     ; Tipo 5
+    12                                  EXTERN EXCEPTION_UD     ; Tipo 6
+    13                                  EXTERN EXCEPTION_NM     ; Tipo 7
+    14                                  EXTERN EXCEPTION_DF     ; Tipo 8
+    15                                  EXTERN EXCEPTION_CoS    ; Tipo 9
+    16                                  EXTERN EXCEPTION_TS     ; Tipo 10
+    17                                  EXTERN EXCEPTION_NP     ; Tipo 11
+    18                                  EXTERN EXCEPTION_SS     ; Tipo 12
+    19                                  EXTERN EXCEPTION_GP     ; Tipo 13
+    20                                  EXTERN EXCEPTION_PF     ; Tipo 14
+    21                                  EXTERN EXCEPTION_MF     ; Tipo 16
+    22                                  EXTERN EXCEPTION_AC     ; Tipo 17
+    23                                  EXTERN EXCEPTION_MC     ; Tipo 18
+    24                                  EXTERN EXCEPTION_XM     ; Tipo 19
+    25                                  EXTERN IRQ00__Key_Handler;
+    26                                  
+    27                                  
+    28                                  ATTR_EXC EQU 0x0000008F
+    29                                  ATTR_INT EQU 0x0000008E
+    30                                  
+    31                                  section .init_IDT
+    32                                  
+    33                                  GLOBAL init_IDT
+    34                                  
+    35                                  init_IDT:
+    36                                  
+    37                                  
+    38                                  ; --> Cargar la IDT con Divide Error Exception #DE (TIPO 0) <--
+    39 00000000 55                          push ebp
+    40 00000001 89E5                        mov ebp, esp    ;enter
+    41 00000003 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+    42 00000008 688F000000                  push dword(ATTR_EXC)            ; Atributos
+    43 0000000D 68[00000000]                push dword(EXCEPTION_DE)        ; Offset de la función que atiende la excepción (dirección)
+    44 00000012 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+    45 00000017 6A00                        push dword(0x00)                ; Numero de excepción
+    46 00000019 E8(00000000)                call IDT_handler_loader
+    47 0000001E C9                          leave
+    48                                  
+    49                                  
+    50                                   ; --> Cargar la IDT con Debug #DB (TIPO 1) <--
+    51 0000001F 55                          push ebp
+    52 00000020 89E5                        mov ebp, esp    ;enter
+    53 00000022 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+    54 00000027 688F000000                  push dword(ATTR_EXC)            ; Atributos
+    55 0000002C 68[00000000]                push dword(EXCEPTION_DB)        ; Offset de la función que atiende la excepción (dirección)
+    56 00000031 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+    57 00000036 6A01                        push dword(0x01)                ; Numero de excepción
+    58 00000038 E8(00000000)                call IDT_handler_loader
+    59 0000003D C9                          leave
+    60                                  
+    61                                   ; --> Cargar la IDT con ? #NMI (TIPO 2) <--
+    62 0000003E 55                          push ebp
+    63 0000003F 89E5                        mov ebp, esp    ;enter
+    64 00000041 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+    65 00000046 688F000000                  push dword(ATTR_EXC)            ; Atributos
+    66 0000004B 68[00000000]                push dword(EXCEPTION_NMI)        ; Offset de la función que atiende la excepción (dirección)
+    67 00000050 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+    68 00000055 6A02                        push dword(0x02)                ; Numero de excepción
+    69 00000057 E8(00000000)                call IDT_handler_loader
+    70 0000005C C9                          leave
+    71                                  
+    72                                   ; --> Cargar la IDT con ? #BE (TIPO 3) <--
+    73 0000005D 55                          push ebp
+    74 0000005E 89E5                        mov ebp, esp    ;enter
+    75 00000060 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+    76 00000065 688F000000                  push dword(ATTR_EXC)            ; Atributos
+    77 0000006A 68[00000000]                push dword(EXCEPTION_BE)        ; Offset de la función que atiende la excepción (dirección)
+    78 0000006F 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+    79 00000074 6A03                        push dword(0x03)                ; Numero de excepción
+    80 00000076 E8(00000000)                call IDT_handler_loader
+    81 0000007B C9                          leave
+    82                                   
+    83                                   ; --> Cargar la IDT con ? #OF (TIPO 4) <--
+    84 0000007C 55                          push ebp
+    85 0000007D 89E5                        mov ebp, esp    ;enter
+    86 0000007F 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+    87 00000084 688F000000                  push dword(ATTR_EXC)            ; Atributos
+    88 00000089 68[00000000]                push dword(EXCEPTION_OF)        ; Offset de la función que atiende la excepción (dirección)
+    89 0000008E 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+    90 00000093 6A04                        push dword(0x04)                ; Numero de excepción
+    91 00000095 E8(00000000)                call IDT_handler_loader
+    92 0000009A C9                          leave
+    93                                  
+    94                                  ; --> Cargar la IDT con Rango de instrucción BOUND excedido #BR (TIPO 5) <--
+    95 0000009B 55                          push ebp
+    96 0000009C 89E5                        mov ebp, esp    ;enter
+    97                                  
+    98 0000009E 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+    99 000000A3 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   100 000000A8 68[00000000]                push dword(EXCEPTION_BR)        ; Offset de la función que atiende la excepción (dirección)
+   101 000000AD 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   102 000000B2 6A05                        push dword(0x05)                ; Numero de excepción
+   103 000000B4 E8(00000000)                call IDT_handler_loader
+   104 000000B9 C9                          leave
+   105                                  
+   106                                   ; --> Cargar la IDT con Invalid Opcode #UD (TIPO 6) <--
+   107 000000BA 55                          push ebp
+   108 000000BB 89E5                        mov ebp, esp    ;enter
+   109 000000BD 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   110 000000C2 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   111 000000C7 68[00000000]                push dword(EXCEPTION_UD)        ; Offset de la función que atiende la excepción (dirección)
+   112 000000CC 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   113 000000D1 6A06                        push dword(0x06)                ; Numero de excepción
+   114 000000D3 E8(00000000)                call IDT_handler_loader
+   115 000000D8 C9                          leave
+   116                                  
+   117                                   ; --> Cargar la IDT con Device not found #NM (TIPO 7) <--
+   118 000000D9 55                          push ebp
+   119 000000DA 89E5                        mov ebp, esp    ;enter
+   120 000000DC 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   121 000000E1 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   122 000000E6 68[00000000]                push dword(EXCEPTION_NM)        ; Offset de la función que atiende la excepción (dirección)
+   123 000000EB 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   124 000000F0 6A07                        push dword(0x07)                ; Numero de excepción
+   125 000000F2 E8(00000000)                call IDT_handler_loader
+   126 000000F7 C9                          leave
+   127                                  
+   128                                    ; --> Cargar la IDT con Double Fault Exception #DF (TIPO 8) <--
+   129 000000F8 55                          push ebp
+   130 000000F9 89E5                        mov ebp, esp    ;enter
+   131 000000FB 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   132 00000100 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   133 00000105 68[00000000]                push dword(EXCEPTION_DF)        ; Offset de la función que atiende la excepción (dirección)
+   134 0000010A 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   135 0000010F 6A08                        push dword(0x08)                ; Numero de excepción
+   136 00000111 E8(00000000)                call IDT_handler_loader
+   137 00000116 C9                          leave
+   138                                  
+   139                                   ; --> Cargar la IDT con Divide Error Exception #DB (TIPO 9) <--
+   140 00000117 55                          push ebp
+   141 00000118 89E5                        mov ebp, esp    ;enter
+   142 0000011A 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   143 0000011F 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   144 00000124 68[00000000]                push dword(EXCEPTION_CoS)        ; Offset de la función que atiende la excepción (dirección)
+   145 00000129 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   146 0000012E 6A09                        push dword(0x09)                ; Numero de excepción
+   147 00000130 E8(00000000)                call IDT_handler_loader
+   148 00000135 C9                          leave
+   149                                  
+   150                                   ; --> Cargar la IDT con TSS invalido #TS (TIPO 10) <--
+   151 00000136 55                          push ebp
+   152 00000137 89E5                        mov ebp, esp    ;enter
+   153 00000139 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   154 0000013E 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   155 00000143 68[00000000]                push dword(EXCEPTION_TS)        ; Offset de la función que atiende la excepción (dirección)
+   156 00000148 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   157 0000014D 6A0A                        push dword(0x0A)                ; Numero de excepción
+   158 0000014F E8(00000000)                call IDT_handler_loader
+   159 00000154 C9                          leave
+   160                                  
+   161                                   ; --> Cargar la IDT con Segmento no presente #NP (TIPO 11) <--
+   162 00000155 55                          push ebp
+   163 00000156 89E5                        mov ebp, esp    ;enter
+   164 00000158 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   165 0000015D 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   166 00000162 68[00000000]                push dword(EXCEPTION_NP)        ; Offset de la función que atiende la excepción (dirección)
+   167 00000167 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   168 0000016C 6A0B                        push dword(0x0B)                ; Numero de excepción
+   169 0000016E E8(00000000)                call IDT_handler_loader
+   170 00000173 C9                          leave
+   171                                   
+   172                                   ; --> Cargar la IDT con Stack Fault Exception #SS (TIPO 12) <--
+   173 00000174 55                          push ebp
+   174 00000175 89E5                        mov ebp, esp    ;enter
+   175 00000177 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   176 0000017C 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   177 00000181 68[00000000]                push dword(EXCEPTION_SS)        ; Offset de la función que atiende la excepción (dirección)
+   178 00000186 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   179 0000018B 6A0C                        push dword(0x0C)                ; Numero de excepción
+   180 0000018D E8(00000000)                call IDT_handler_loader
+   181 00000192 C9                          leave
+   182                                  
+   183                                   ; --> Cargar la IDT con General Protection Exception #GP (TIPO 13) <--
+   184 00000193 55                          push ebp
+   185 00000194 89E5                        mov ebp, esp    ;enter
+   186 00000196 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   187 0000019B 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   188 000001A0 68[00000000]                push dword(EXCEPTION_GP)        ; Offset de la función que atiende la excepción (dirección)
+   189 000001A5 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   190 000001AA 6A0D                        push dword(0x0D)                ; Numero de excepción
+   191 000001AC E8(00000000)                call IDT_handler_loader
+   192 000001B1 C9                          leave
+   193                                  
+   194                                   ; --> Cargar la IDT con Page Fault Exception #PF (TIPO 14) <--
+   195 000001B2 55                          push ebp
+   196 000001B3 89E5                        mov ebp, esp    ;enter
+   197 000001B5 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   198 000001BA 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   199 000001BF 68[00000000]                push dword(EXCEPTION_PF)        ; Offset de la función que atiende la excepción (dirección)
+   200 000001C4 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   201 000001C9 6A0E                        push dword(0x0E)                ; Numero de excepción
+   202 000001CB E8(00000000)                call IDT_handler_loader
+   203 000001D0 C9                          leave
+   204                                  
+   205                                   ; --> Cargar la IDT con Error matemarico x87 #MF (TIPO 16) <--
+   206 000001D1 55                          push ebp
+   207 000001D2 89E5                        mov ebp, esp    ;enter
+   208 000001D4 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   209 000001D9 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   210 000001DE 68[00000000]                push dword(EXCEPTION_MF)        ; Offset de la función que atiende la excepción (dirección)
+   211 000001E3 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   212 000001E8 6A10                        push dword(0x10)                ; Numero de excepción
+   213 000001EA E8(00000000)                call IDT_handler_loader
+   214 000001EF C9                          leave
+   215                                  
+   216                                   ; --> Cargar la IDT con Error de alineación #AC (TIPO 17) <--
+   217 000001F0 55                          push ebp
+   218 000001F1 89E5                        mov ebp, esp    ;enter
+   219 000001F3 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   220 000001F8 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   221 000001FD 68[00000000]                push dword(EXCEPTION_AC)        ; Offset de la función que atiende la excepción (dirección)
+   222 00000202 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   223 00000207 6A11                        push dword(0x11)                ; Numero de excepción
+   224 00000209 E8(00000000)                call IDT_handler_loader
+   225 0000020E C9                          leave
+   226                                  
+   227                                   ; --> Cargar la IDT con ? #MC (TIPO 18) <--
+   228 0000020F 55                          push ebp
+   229 00000210 89E5                        mov ebp, esp    ;enter
+   230 00000212 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   231 00000217 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   232 0000021C 68[00000000]                push dword(EXCEPTION_MC)        ; Offset de la función que atiende la excepción (dirección)
+   233 00000221 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   234 00000226 6A12                        push dword(0x12)                ; Numero de excepción
+   235 00000228 E8(00000000)                call IDT_handler_loader
+   236 0000022D C9                          leave
+   237                                  
+   238                                   ; --> Cargar la IDT con Exception float SIMD #XM (TIPO 19) <--
+   239 0000022E 55                          push ebp
+   240 0000022F 89E5                        mov ebp, esp    ;enter
+   241 00000231 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   242 00000236 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   243 0000023B 68[00000000]                push dword(EXCEPTION_XM)        ; Offset de la función que atiende la excepción (dirección)
+   244 00000240 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   245 00000245 6A13                        push dword(0x13)                ; Numero de excepción
+   246 00000247 E8(00000000)                call IDT_handler_loader
+   247 0000024C C9                          leave
+   248                                  
+   249                                       ; --> Cargar la IDT con Exception float SIMD #XM (TIPO 19) <--
+   250 0000024D 55                          push ebp
+   251 0000024E 89E5                        mov ebp, esp    ;enter
+   252 00000250 68[00000000]                push dword(__SYS_TABLES_IDT)               ; Dirección de la IDT
+   253 00000255 688F000000                  push dword(ATTR_EXC)            ; Atributos
+   254 0000025A 68[00000000]                push dword(IRQ00__Key_Handler)  ; Offset de la función que atiende la excepción (dirección)
+   255 0000025F 68[00000000]                push dword(CS_SEL_32)           ; Segmento de la función que atiende la excepción
+   256 00000264 6A21                        push dword(0x21)                ; Numero de excepción
+   257 00000266 E8(00000000)                call IDT_handler_loader
+   258 0000026B C9                          leave
+   259                                  
+   260                                  
+   261                                  
+   262                                  
+   263                                  
+   264                                  
+   265                                      
+   266 0000026C C3                      ret
+   267                                  
+   268                                      

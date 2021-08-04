@@ -1,0 +1,16 @@
+     1                                  section .kernel32
+     2                                  USE32
+     3                                  GLOBAL kernel32_code_size
+     4                                  GLOBAL kernel32_init
+     5                                  
+     6                                  kernel32_code_size EQU (kernel32_end-kernel32_init)
+     7                                  
+     8                                  kernel32_init:
+     9                                  
+    10                                  
+    11                                      .guard
+    11          ******************       warning: label alone on a line without a colon might be in error [-w+orphan-labels]
+    12 00000000 F4                          hlt
+    13 00000001 EBFD                        jmp .guard
+    14                                  
+    15                                  kernel32_end:

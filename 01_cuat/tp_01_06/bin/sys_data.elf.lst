@@ -1,0 +1,15 @@
+     1                                  GLOBAL Keyboard_Buffer_Itself
+     2                                  GLOBAL Load_Keyboard_table_Itself
+     3                                  GLOBAL TIMER_COUNTER
+     4                                  GLOBAL Keyboard_counter
+     5                                  
+     6                                  ;Mem Section
+     7                                  SECTION .TABLE_KEYBOARD ; 
+     8 00000000 <res 00000013>          Keyboard_Buffer_Itself resb 19   ;
+     8          ******************       warning: uninitialized space declared in non-BSS section `.TABLE_KEYBOARD': zeroing
+     9 00000013 00                      Keyboard_counter db 0x00; Count how many keys were pressed
+    10                                  
+    11                                  SECTION .DATA_EXEC
+    12 00000000 <res 000000BE>          Load_Keyboard_table_Itself resb 190 ; 
+    12          ******************       warning: uninitialized space declared in non-BSS section `.DATA_EXEC': zeroing
+    13 000000BE 00                      TIMER_COUNTER db 0x00

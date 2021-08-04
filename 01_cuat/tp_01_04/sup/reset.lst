@@ -1,0 +1,10 @@
+     1                                  BITS 16
+     2                                  GLOBAL reset
+     3                                  EXTERN init16
+     4                                  
+     5                                  SECTION .reset
+     6                                  reset:  ;xFFFFFFF0
+     7 00000000 FA                          cli ; fffffff1  (1)
+     8 00000001 E9(0000)                    jmp init16  ;   fff fff3    (2)
+     9 00000004 90<rept>                ALIGN 16
+    10                                  

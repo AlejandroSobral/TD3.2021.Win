@@ -1,0 +1,58 @@
+     1                                  ;Escribir un programa que se ejecute en una ROM de 64kB y permita copiarse a sí mismo en cualquier zona de memoria.
+     2                                   ;A tal fin se deberá implementar la función void *td3_memcopy(void *destino, const void *origen, unsigned int num_bytes);
+     3                                   ;Para validar el correcto funcionamiento del programa, el mismo deberá copiarse en las direcciones indicadas a continuación y mediante Bochs verificar 
+     4                                   ;que la memoria se hayaescrito correctamente.
+     5                                   ;i.0x00000
+     6                                   ;ii.0xF0000
+     7                                  BITS 16
+     8                                  GLOBAL entry
+     9                                  
+    10                                  
+    11                                  
+    12                                  DEST_ADRESS  EQU 0x0000; Start destination adress
+    13                                  DEST_ADRESS2 EQU 0xF000; Start destination adress 
+    14                                  ;msg_length EQU 0x20; Dummy msg_length
+    15                                  
+    16                                  SECTION .entry
+    17                                  
+    18                                  
+    19                                  entry:
+    20 00000000 31C0                        xor ax,ax; Clear ax
+    21 00000002 8ED8                        mov ds, ax; Clear ds
+    22 00000004 8ED0                        mov ss, ax; Set stack segment as zero
+    23 00000006 BC0080                      mov sp, 0x8000; Set the stack pointer top adress. At middle from DestAdd 1 & Dest Add2
+    24                                  
+    25                                  ;***********************Load first destination info data****************************************;
+    26 00000009 B80000                      mov ax, DEST_ADRESS
+    27 0000000C BB0900                      mov bx, MSG_LENGTH
+    28 0000000F B9[2300]                    mov cx, memcopy
+    29                                  
+    30 00000012 E80E00                      call memcopy
+    31                                  
+    32 00000015 B800F0                      mov ax, DEST_ADRESS2
+    33 00000018 BB0900                      mov bx, MSG_LENGTH; Same length than last time
+    34 0000001B B9[2300]                    mov cx, memcopy
+    35                                  
+    36 0000001E E80200                      call memcopy
+    37                                  
+    38 00000021 EB0A                        jmp to_sleep
+    39                                  
+    40                                  
+    41                                  memcopy:
+    42                                  
+    43 00000023 89C7                        mov di, ax; Load destiny to 'es'
+    44 00000025 89CE                        mov si, cx; Load length to 'si' 
+    45 00000027 89D9                        mov cx, bx; Set lenght to bx for repetion
+    46 00000029 F32EA4                      rep cs movsb ; Move bytes 
+    47                                      ;; MOVSB INFO:
+    48                                      ;; Move byte at adreess SI to adress DI
+    49                                  
+    50                                  MSG_LENGTH EQU ($ - memcopy); Fetch the length size right here
+    51                                  
+    52 0000002C C3                          ret
+    53                                  
+    54                                  to_sleep:
+    55 0000002D 87DB                        xchg bx, bx ; Magic breakpoint
+    56 0000002F F4                          hlt
+    57                                  
+    58                                  ALIGN 16

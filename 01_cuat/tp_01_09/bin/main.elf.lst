@@ -1,0 +1,70 @@
+     1                                  
+     2                                  ;; CHECK P. 101 de los PDF de paginacion
+     3                                  section .kernel32
+     4                                  USE32
+     5                                  GLOBAL kernel32_code_size
+     6                                  GLOBAL kernel32_init
+     7                                  
+     8                                  EXTERN __SYS_TABLES_IDT
+     9                                  EXTERN __SYS_TABLES_GDT
+    10                                  
+    11                                  ;Global Variables
+    12                                  EXTERN buffer_Clear
+    13                                  EXTERN Keyboard_Buffer_Itself
+    14                                  EXTERN Load_Keyboard_table_Itself
+    15                                  EXTERN _64bits_average_func
+    16                                  EXTERN Screen_Writing
+    17                                  EXTERN Screen_pointer
+    18                                  EXTERN Digit_Table_Average
+    19                                  EXTERN Flag_Task_1;
+    20                                  VIDEO_BUFFER_ADDR EQU 0x000B8000
+    21                                  ;Function references
+    22                                  EXTERN init_timer0
+    23                                  
+    24                                  kernel32_code_size EQU (kernel32_end-kernel32_init)
+    25                                  
+    26                                  kernel32_init:
+    27                                  
+    28 00000000 E8(00000000)                call init_timer0; Init Timer Channel 0 after setting the IDT table
+    29 00000005 68[00000000]                push dword Keyboard_Buffer_Itself; Clear the keyboard buffer before start
+    30                                  
+    31 0000000A E8(00000000)                call buffer_Clear;
+    32 0000000F 68[00000000]                push dword Load_Keyboard_table_Itself; Clear the keyboard table buffer before start
+    33 00000014 E8(00000000)                call buffer_Clear;
+    34                                   
+    35 00000019 FB                          sti; Set on interrupts
+    36                                  
+    37                                  wait_for_flag:
+    38 0000001A A1[00000000]                mov eax, dword [Flag_Task_1]
+    39 0000001F 83F801                      cmp eax, 0x01;
+    40 00000022 7403                        je Average_on;
+    41 00000024 EBF4                        jmp wait_for_flag; No task
+    42 00000026 90                          nop
+    43                                  
+    44                                  Average_on:
+    45 00000027 B800000000                  mov eax, 0x00
+    46 0000002C A3[00000000]                mov dword [Flag_Task_1], eax;Reset task flag
+    47                                  
+    48 00000031 B800800B00                  mov eax, VIDEO_BUFFER_ADDR
+    49 00000036 A3[00000000]                mov [Screen_pointer],eax;  Reload the screen pointer    
+    50                                  
+    51 0000003B 55                          push    ebp
+    52 0000003C 89E5                        mov     ebp, esp
+    53 0000003E 68[00000000]                push dword Digit_Table_Average
+    54 00000043 68[00000000]                push dword Load_Keyboard_table_Itself
+    55 00000048 E8(00000000)                call _64bits_average_func
+    56 0000004D C9                          leave
+    57                                  
+    58                                   
+    59                                  
+    60 0000004E 55                          push    ebp
+    61 0000004F 89E5                        mov     ebp, esp
+    62 00000051 6A40                        push 64 
+    63 00000053 6A00                        push 0     
+    64 00000055 68[00000000]                push dword Digit_Table_Average     
+    65 0000005A FF35[00000000]              push dword [Screen_pointer]
+    66 00000060 E8(00000000)                call Screen_Writing
+    67 00000065 C9                          leave    
+    68 00000066 EBB2                        jmp wait_for_flag ; Waiting for interrupts endless cycle
+    69                                  
+    70                                  kernel32_end:

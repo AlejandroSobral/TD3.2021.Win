@@ -1,0 +1,44 @@
+     1                                  
+     2                                  ;; CHECK P. 101 de los PDF de paginacion
+     3                                  section .kernel32
+     4                                  USE32
+     5                                  GLOBAL kernel32_code_size
+     6                                  GLOBAL kernel32_init
+     7                                  
+     8                                  EXTERN __SYS_TABLES_IDT
+     9                                  EXTERN __SYS_TABLES_GDT
+    10                                  
+    11                                  ;Global Variables
+    12                                  EXTERN buffer_Clear
+    13                                  EXTERN Keyboard_Buffer_Itself
+    14                                  EXTERN Load_Keyboard_table_Itself
+    15                                  EXTERN _64bits_average_func
+    16                                  EXTERN Screen_Writing
+    17                                  EXTERN Screen_pointer
+    18                                  EXTERN Digit_Table_Average
+    19                                  EXTERN Flag_Task_1;
+    20                                  VIDEO_BUFFER_ADDR EQU 0x000B8000
+    21                                  ;Function references
+    22                                  EXTERN init_timer0
+    23                                  EXTERN task01
+    24                                  
+    25                                  kernel32_code_size EQU (kernel32_end-kernel32_init)
+    26                                  
+    27                                  kernel32_init:
+    28                                  
+    29 00000000 E8(00000000)                call init_timer0; Init Timer Channel 0 after setting the IDT table
+    30 00000005 68[00000000]                push dword Keyboard_Buffer_Itself; Clear the keyboard buffer before start
+    31                                  
+    32 0000000A E8(00000000)                call buffer_Clear;
+    33 0000000F 68[00000000]                push dword Load_Keyboard_table_Itself; Clear the keyboard table buffer before start
+    34 00000014 E8(00000000)                call buffer_Clear;
+    35                                   
+    36 00000019 FB                          sti; Set on interrupts
+    37                                  
+    38                                  loop:
+    39 0000001A E8(00000000)                call task01
+    40                                  
+    41                                  
+    42 0000001F EBF9                        jmp loop ; Waiting for interrupts endless cycle
+    43                                  
+    44                                  kernel32_end:

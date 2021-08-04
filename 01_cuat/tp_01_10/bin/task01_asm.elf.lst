@@ -1,0 +1,59 @@
+     1                                  
+     2                                  ;; CHECK P. 101 de los PDF de paginacion
+     3                                  section .task01_functions
+     4                                  USE32
+     5                                  
+     6                                  GLOBAL task01
+     7                                  ;Global Variables
+     8                                  EXTERN buffer_Clear
+     9                                  EXTERN Keyboard_Buffer_Itself
+    10                                  EXTERN Load_Keyboard_table_Itself
+    11                                  EXTERN _64bits_average_func
+    12                                  EXTERN Screen_Writing
+    13                                  EXTERN Screen_pointer
+    14                                  EXTERN Digit_Table_Average
+    15                                  EXTERN Flag_Task_1;
+    16                                  EXTERN _access_average_memory
+    17                                  VIDEO_BUFFER_ADDR EQU 0x000B8000
+    18                                  
+    19                                  task01:
+    20                                  
+    21                                  wait_for_flag:
+    22 00000000 A1[00000000]                mov eax, dword [Flag_Task_1]
+    23 00000005 83F801                      cmp eax, 0x01;
+    24 00000008 7403                        je Average_on;
+    25 0000000A EBF4                        jmp wait_for_flag; No task
+    26 0000000C 90                          nop
+    27                                  
+    28                                  Average_on:
+    29 0000000D B800000000                  mov eax, 0x00
+    30 00000012 A3[00000000]                mov dword [Flag_Task_1], eax;Reset task flag
+    31                                  
+    32 00000017 B800800B00                  mov eax, VIDEO_BUFFER_ADDR
+    33 0000001C A3[00000000]                mov [Screen_pointer],eax;  Reload the screen pointer    
+    34                                  
+    35 00000021 55                          push    ebp
+    36 00000022 89E5                        mov     ebp, esp
+    37 00000024 68[00000000]                push dword Digit_Table_Average
+    38 00000029 68[00000000]                push dword Load_Keyboard_table_Itself
+    39 0000002E E8(00000000)                call _64bits_average_func
+    40 00000033 C9                          leave
+    41                                  
+    42                                  
+    43 00000034 55                          push    ebp
+    44 00000035 89E5                        mov     ebp, esp
+    45 00000037 6A40                        push 64 ;Column
+    46 00000039 6A00                        push 0  ;Row   
+    47 0000003B 68[00000000]                push dword Digit_Table_Average     
+    48 00000040 FF35[00000000]              push dword [Screen_pointer]
+    49 00000046 E8(00000000)                call Screen_Writing
+    50 0000004B C9                          leave    
+    51                                  
+    52                                  
+    53                                      ;Access to random position may cause a Page Fault (PF)
+    54 0000004C A1[00000000]                mov dword eax,  [Digit_Table_Average]
+    55 00000051 8B18                        mov dword ebx,  [eax]
+    56                                  
+    57                                  
+    58                                  
+    59 00000053 C3                          ret

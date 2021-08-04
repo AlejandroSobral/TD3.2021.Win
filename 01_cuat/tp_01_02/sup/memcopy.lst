@@ -1,0 +1,62 @@
+     1                                  ;Escribir un programa que se ejecute en una ROM de 64kB y permita copiarse a sí mismo en cualquier zona de memoria.
+     2                                   ;A tal fin se deberá implementar la función void *td3_memcopy(void *destino, const void *origen, unsigned int num_bytes);
+     3                                   ;Para validar el correcto funcionamiento del programa, el mismo deberá copiarse en las direcciones indicadas a continuación y mediante Bochs verificar 
+     4                                   ;que la memoria se hayaescrito correctamente.
+     5                                   ;i.0x00000
+     6                                   ;ii.0xF0000
+     7                                  BITS 16
+     8                                  GLOBAL entry
+     9                                  
+    10                                  
+    11                                  
+    12                                  DEST_ADRESS  EQU 0x0000; Start destination adress
+    13                                  DEST_ADRESS2 EQU 0xF0000; Start destination adress 
+    14                                  ;msg_length EQU 0x20; Dummy msg_length
+    15                                  
+    16                                  SECTION .entry
+    17                                  
+    18                                  
+    19                                  entry:
+    20 00000000 31C0                        xor ax,ax; Clear ax
+    21 00000002 8ED8                        mov ds, ax; Clear ds
+    22 00000004 8ED0                        mov ss, ax; Set stack segment as zero
+    23 00000006 BC0080                      mov sp, 0x8000; Set the stack pointer top adress. At middle from DestAdd 1 & Dest Add2
+    24                                  
+    25                                  ;***********************Load first destination info data****************************************;
+    26 00000009 B80000                      mov ax, DEST_ADRESS
+    27 0000000C BB0900                      mov bx, MSG_LENGTH
+    28 0000000F B9[2500]                    mov cx, memcopy
+    29                                  
+    30 00000012 E81000                      call memcopy
+    31 00000015 87DB                        xchg bx,bx
+    32 00000017 B80000                      mov ax, DEST_ADRESS2
+    32          ******************       warning: word data exceeds bounds [-w+number-overflow]
+    33 0000001A BB0900                      mov bx, MSG_LENGTH; Same length than last time
+    34 0000001D B9[2500]                    mov cx, memcopy
+    35                                  
+    36 00000020 E80200                      call memcopy
+    37                                  
+    38 00000023 EB0A                        jmp to_sleep
+    39                                  
+    40                                  
+    41                                  memcopy:
+    42                                  
+    43 00000025 89C7                        mov di, ax; Load destiny to destination register
+    44 00000027 89CE                        mov si, cx; Load source, code itself!
+    45 00000029 89D9                        mov cx, bx; Set lenght to bx for repetion
+    46 0000002B F32EA4                      rep cs movsb ; Move bytes 
+    47                                      ;; MOVSB INFO:
+    48                                      ;; Move byte at adreess SI to adress DI. In this particular case, I'm using the (CS) Code Segment as source register. That's why
+    49                                      ;; I wrote cs before movsb.
+    50                                  
+    51                                  ;; SEGMENT REGISTERS INFO P77 & 78 AT Intel's Manual.
+    52                                  
+    53                                  MSG_LENGTH EQU ($ - memcopy); Fetch the length size right here
+    54                                  
+    55 0000002E C3                          ret
+    56                                  
+    57                                  to_sleep:
+    58 0000002F 87DB                        xchg bx, bx ; Magic breakpoint
+    59 00000031 F4                          hlt
+    60                                  
+    61 00000032 90<rept>                ALIGN 16
